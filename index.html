@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADHD AI Coach — Premium</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --blue:#4A7FA5;--dk:#2E4D6B;--orange:#E8925A;--green:#52A882;
+  --purple:#7B6BB5;--pink:#D4537E;--yellow:#F5C842;
+  --bg:#F6F4F1;--card:#fff;--line:#D5D1CB;--txt:#2A2A2A;--txtl:#9A9590;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;}
+
+/* ── LOGIN SCREEN ── */
+#login-screen{
+  position:fixed;inset:0;background:linear-gradient(135deg,#1A1A2E 0%,var(--dk) 50%,var(--purple) 100%);
+  display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;
+}
+.login-box{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:40px 36px;max-width:420px;width:100%;text-align:center;backdrop-filter:blur(10px);}
+.login-logo{font-family:'DM Serif Display',serif;font-style:italic;font-size:32px;color:#fff;margin-bottom:6px;}
+.login-sub{font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:28px;line-height:1.6;}
+.login-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:4px 14px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:24px;}
+.license-input{width:100%;padding:14px 16px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;text-align:center;letter-spacing:2px;outline:none;margin-bottom:10px;transition:border-color 0.2s;}
+.license-input::placeholder{color:rgba(255,255,255,0.35);letter-spacing:1px;}
+.license-input:focus{border-color:rgba(255,255,255,0.5);}
+.license-input.error{border-color:var(--pink);animation:shake 0.3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.login-btn{width:100%;padding:14px;border-radius:10px;border:none;background:var(--orange);color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-bottom:16px;}
+.login-btn:hover{background:#d4813f;transform:translateY(-2px);}
+.login-error{font-size:12px;color:var(--pink);margin-bottom:10px;display:none;}
+.login-help{font-size:11px;color:rgba(255,255,255,0.35);line-height:1.6;}
+.lang-toggle{display:flex;gap:8px;justify-content:center;margin-bottom:20px;}
+.lang-btn{padding:5px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.2);background:transparent;color:rgba(255,255,255,0.6);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.lang-btn.active{background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.4);}
+
+/* ── MAIN APP ── */
+#app{display:none;}
+.nav{position:sticky;top:0;z-index:100;background:var(--dk);display:flex;align-items:center;padding:0 20px;height:54px;gap:8px;box-shadow:0 2px 20px rgba(0,0,0,0.2);}
+.nav-logo{font-family:'DM Serif Display',serif;font-style:italic;font-size:16px;color:#fff;margin-right:auto;}
+.nav-badge{background:var(--orange);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:1px;text-transform:uppercase;}
+.nav-lang{padding:4px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.3);background:transparent;color:rgba(255,255,255,0.75);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.nav-lang:hover{background:rgba(255,255,255,0.1);color:#fff;}
+.nav-logout{padding:4px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.2);background:transparent;color:rgba(255,255,255,0.45);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;}
+
+/* ── HOME ── */
+.wrap{max-width:760px;margin:0 auto;padding:28px 16px 80px;}
+.hero{background:linear-gradient(135deg,#1A1A2E,var(--dk) 50%,var(--purple));border-radius:16px;padding:36px 32px;margin-bottom:20px;color:#fff;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'🧠';position:absolute;font-size:120px;opacity:0.05;top:-10px;right:-20px;}
+.hero h1{font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(26px,5vw,38px);margin-bottom:10px;}
+.hero p{font-size:14px;opacity:0.72;line-height:1.7;max-width:440px;margin:0 auto;}
+
+/* ── AGENTS GRID ── */
+.agents-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-bottom:20px;}
+.agent-card{background:var(--card);border-radius:14px;padding:20px;border:1px solid var(--line);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:16px;position:relative;overflow:hidden;}
+.agent-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
+.agent-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,0.1);}
+.agent-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.agent-body{flex:1;}
+.agent-name{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:3px;}
+.agent-desc{font-size:12px;color:var(--txtl);line-height:1.5;}
+.agent-arrow{font-size:18px;color:var(--txtl);transition:transform 0.2s;}
+.agent-card:hover .agent-arrow{transform:translateX(4px);}
+.agent-sessions{font-size:10px;font-weight:600;margin-top:4px;}
+
+/* ── CHAT ── */
+#chat-screen{display:none;}
+.chat-header{background:var(--card);border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:54px;z-index:50;}
+.chat-back{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:transparent;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;}
+.chat-back:hover{border-color:var(--blue);color:var(--blue);}
+.chat-agent-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.chat-agent-name{font-size:15px;font-weight:700;color:var(--txt);flex:1;}
+.chat-agent-sub{font-size:11px;color:var(--txtl);}
+.chat-clear{padding:5px 12px;border-radius:8px;border:1.5px solid #E05A5A;background:transparent;color:#E05A5A;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;}
+
+.messages{max-width:700px;margin:0 auto;padding:20px 16px;min-height:calc(100vh - 260px);}
+.msg{display:flex;gap:10px;margin-bottom:16px;animation:msgIn 0.25s ease;}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse;}
+.msg-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.msg-bubble{max-width:75%;padding:12px 16px;border-radius:14px;font-size:14px;line-height:1.7;}
+.msg.user .msg-bubble{background:var(--dk);color:#fff;border-radius:14px 14px 4px 14px;}
+.msg.ai .msg-bubble{background:var(--card);border:1px solid var(--line);border-radius:14px 14px 14px 4px;color:var(--txt);}
+.msg.ai .msg-bubble strong{color:var(--dk);}
+.msg.ai .msg-bubble br{display:block;margin:4px 0;}
+
+/* Loading dots */
+.loading-dots{display:inline-flex;gap:4px;align-items:center;padding:4px 0;}
+.loading-dots span{width:7px;height:7px;border-radius:50%;background:var(--txtl);animation:dot 1.2s infinite;}
+.loading-dots span:nth-child(2){animation-delay:0.2s;}
+.loading-dots span:nth-child(3){animation-delay:0.4s;}
+@keyframes dot{0%,80%,100%{transform:scale(0.5);opacity:0.4}40%{transform:scale(1);opacity:1}}
+
+/* Input area */
+.input-area{position:fixed;bottom:0;left:0;right:0;background:rgba(246,244,241,0.95);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:12px 16px;}
+.input-inner{max-width:700px;margin:0 auto;display:flex;gap:10px;align-items:flex-end;}
+.chat-input{flex:1;border:1.5px solid var(--line);border-radius:12px;padding:12px 16px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;resize:none;max-height:120px;line-height:1.6;background:#fff;transition:border-color 0.2s;}
+.chat-input:focus{border-color:var(--blue);}
+.send-btn{width:44px;height:44px;border-radius:12px;border:none;background:var(--dk);color:#fff;font-size:18px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.send-btn:hover{background:var(--blue);transform:scale(1.05);}
+.send-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+
+/* Suggestions */
+.suggestions{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.sug-btn{padding:6px 12px;border-radius:20px;border:1.5px solid var(--line);background:#fff;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--txtl);cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.sug-btn:hover{border-color:var(--blue);color:var(--blue);}
+
+/* Stats bar */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
+.stat-mini{background:var(--card);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--line);}
+.stat-mini-n{font-family:'DM Serif Display',serif;font-size:20px;line-height:1;}
+.stat-mini-l{font-size:9px;color:var(--txtl);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+
+/* Toast */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--dk);color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:600;z-index:1000;transition:transform 0.3s;white-space:nowrap;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+@media(max-width:600px){
+  .hero{padding:24px 18px;}
+  .agents-grid{grid-template-columns:1fr;}
+  .msg-bubble{max-width:85%;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="login-en">🇬🇧 EN</button>
+      <button class="lang-btn" id="login-fr">🇫🇷 FR</button>
+    </div>
+    <div class="login-badge">✨ Premium Access</div>
+    <div class="login-logo">ADHD AI Coach</div>
+    <div class="login-sub" id="login-sub">Enter your license key to access your personal ADHD AI coaching system.</div>
+    <input class="license-input" id="license-input" type="text" placeholder="ADHD-XXXX-XXXX" maxlength="20" autocomplete="off" spellcheck="false">
+    <div class="login-error" id="login-error">❌ Invalid license key. Please check and try again.</div>
+    <button class="login-btn" id="login-btn">Access My Coach →</button>
+    <div class="login-help" id="login-help">License key received in your purchase confirmation email.<br>Need help? Contact support@broketobossco.com</div>
+  </div>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="app">
+  <nav class="nav">
+    <div class="nav-logo">ADHD AI Coach <span class="nav-badge">Premium</span></div>
+    <button class="nav-lang" id="nav-lang-toggle">🇫🇷 FR</button>
+    <button class="nav-logout" id="nav-logout">⎋ Logout</button>
+  </nav>
+
+  <!-- HOME -->
+  <div id="home-screen">
+    <div class="wrap">
+      <div class="hero">
+        <h1 id="hero-title">Your Personal ADHD AI Coach</h1>
+        <p id="hero-sub">8 specialized AI agents built for your neurodivergent brain. Real responses. Real support. Available 24/7.</p>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-mini"><div class="stat-mini-n" style="color:var(--purple);" id="stat-sessions">0</div><div class="stat-mini-l" id="stat-sessions-l">Sessions</div></div>
+        <div class="stat-mini"><div class="stat-mini-n" style="color:var(--orange);" id="stat-msgs">0</div><div class="stat-mini-l" id="stat-msgs-l">Messages</div></div>
+        <div class="stat-mini"><div class="stat-mini-n" style="color:var(--green);" id="stat-agents">8</div><div class="stat-mini-l" id="stat-agents-l">Agents</div></div>
+        <div class="stat-mini"><div class="stat-mini-n" style="color:var(--blue);">∞</div><div class="stat-mini-l" id="stat-access-l">Access</div></div>
+      </div>
+
+      <div class="agents-grid" id="agents-grid"></div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div id="chat-screen">
+    <div class="chat-header">
+      <button class="chat-back" id="chat-back">←</button>
+      <div class="chat-agent-icon" id="chat-icon"></div>
+      <div>
+        <div class="chat-agent-name" id="chat-name"></div>
+        <div class="chat-agent-sub" id="chat-sub"></div>
+      </div>
+      <button class="chat-clear" id="chat-clear-btn">↺ Clear</button>
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="input-area">
+      <div class="suggestions" id="suggestions"></div>
+      <div class="input-inner">
+        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Type your message..."></textarea>
+        <button class="send-btn" id="send-btn">↑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────
+// API key configured
+
+// License keys — add more here for each customer
+var VALID_LICENSES = [
+  'ADHD-DEMO-2026',
+  'ADHD-S001-2026',
+  'ADHD-S002-2026',
+  'ADHD-S003-2026',
+  'ADHD-S004-2026',
+  'ADHD-S005-2026',
+  'ADHD-S006-2026',
+  'ADHD-S007-2026',
+  'ADHD-S008-2026',
+  'ADHD-S009-2026',
+  'ADHD-S010-2026',
+];
+
+// ─────────────────────────────────────────
+// LANGUAGE
+// ─────────────────────────────────────────
+var lang = localStorage.getItem('adhd_lang') || 'en';
+
+var T = {
+  en: {
+    loginSub: 'Enter your license key to access your personal ADHD AI coaching system.',
+    loginBtn: 'Access My Coach →',
+    loginHelp: 'License key received in your purchase confirmation email.\nNeed help? Contact support@broketobossco.com',
+    loginError: '❌ Invalid license key. Please check and try again.',
+    heroTitle: 'Your Personal ADHD AI Coach',
+    heroSub: '8 specialized AI agents built for your neurodivergent brain. Real responses. Real support. Available 24/7.',
+    sessions: 'Sessions', msgs: 'Messages', agents: 'Agents', access: 'Lifetime',
+    clearConfirm: 'Clear this conversation?',
+    cleared: 'Conversation cleared',
+    thinking: 'Thinking...',
+  },
+  fr: {
+    loginSub: 'Entre ta clé de licence pour accéder à ton coach IA ADHD personnel.',
+    loginBtn: 'Accéder à mon Coach →',
+    loginHelp: 'Clé de licence reçue dans ton email de confirmation d\'achat.\nBesoin d\'aide ? Contact support@broketobossco.com',
+    loginError: '❌ Clé de licence invalide. Vérifie et réessaie.',
+    heroTitle: 'Ton Coach IA ADHD Personnel',
+    heroSub: '8 agents IA spécialisés construits pour ton cerveau neurodivergent. Vraies réponses. Vrai soutien. 24h/24.',
+    sessions: 'Sessions', msgs: 'Messages', agents: 'Agents', access: 'À vie',
+    clearConfirm: 'Effacer cette conversation ?',
+    cleared: 'Conversation effacée',
+    thinking: 'En train de réfléchir...',
+  }
+};
+
+function t(key) { return T[lang][key] || T.en[key] || key; }
+
+// ─────────────────────────────────────────
+// AGENTS
+// ─────────────────────────────────────────
+var AGENTS = {
+  en: [
+    {
+      id:'task', icon:'🔨', color:'var(--green)', bg:'#EEF8F3',
+      name:'Task Breaker', desc:'Breaks overwhelming tasks into tiny 15-min steps',
+      system:'You are an expert ADHD coach specializing in task breakdown. The user has ADHD and feels overwhelmed. Break their task into very specific, tiny steps of maximum 15 minutes each. Use numbered lists, be warm and encouraging, and acknowledge how hard starting can be. Never give generic advice.',
+      suggestions:['I need to start my report but I\'m frozen','Help me break down cleaning my apartment','I have a huge project due Friday'],
+      welcome:'Hi! I\'m your Task Breaker. Tell me what task is making you freeze — I\'ll break it into tiny steps you can actually start. 🔨'
+    },
+    {
+      id:'planner', icon:'📅', color:'var(--orange)', bg:'#FEF5EE',
+      name:'Day Planner', desc:'Creates a gentle, realistic plan for your day',
+      system:'You are an ADHD-specialized day planner coach. Create gentle, realistic daily plans. Prioritize ruthlessly (max 3 real tasks). Add buffer time between tasks. Suggest time blocks. Include mandatory breaks. Be warm and non-judgmental. Acknowledge that plans may change — that\'s okay.',
+      suggestions:['Plan my day — I have 5 things to do','Help me prioritize my tasks for today','I\'m overwhelmed with what I need to do today'],
+      welcome:'Hello! Tell me everything you need to do today — brain dump it all — and I\'ll create a gentle, realistic plan for your ADHD brain. 📅'
+    },
+    {
+      id:'dump', icon:'🧹', color:'var(--purple)', bg:'#F3F1FA',
+      name:'Brain Dump Coach', desc:'Helps you unload your mind and find clarity',
+      system:'You are an ADHD brain dump coach. The user needs to unload their mind. First, let them dump everything. Then help them sort: what needs action NOW, what can wait, what to let go of. Be compassionate and concrete. End with one clear first step.',
+      suggestions:['My brain is spinning — where do I start?','I have too many thoughts and can\'t focus','Everything feels urgent and I\'m paralyzed'],
+      welcome:'Ready to unload your brain? Just start writing — everything that\'s spinning in your head. No filter, no judgment. Let it all out. 🧹'
+    },
+    {
+      id:'focus', icon:'⏳', color:'var(--pink)', bg:'#FDEEF3',
+      name:'Focus Coach', desc:'ADHD-adapted Pomodoro sessions with real support',
+      system:'You are an ADHD focus coach. Help the user with focus sessions. Give them a specific micro-goal, ADHD-specific distraction strategies, what to do when they get distracted (and they WILL), and a reward to look forward to. Be energetic, warm, and realistic about ADHD challenges.',
+      suggestions:['Help me focus for the next 25 minutes','I keep getting distracted — what do I do?','Start a focus session with me'],
+      welcome:'Let\'s do a focus session together! What do you want to work on? I\'ll give you a micro-goal, strategies to stay on track, and celebrate with you after. ⏳'
+    },
+    {
+      id:'emotion', icon:'🌊', color:'var(--blue)', bg:'#EBF3F9',
+      name:'Emotion Coach', desc:'Quick emotional regulation for overwhelm and RSD',
+      system:'You are an ADHD emotional regulation specialist. The user is dysregulated, overwhelmed, or experiencing RSD (Rejection Sensitive Dysphoria). Provide immediate calming support: a breathing exercise, a grounding technique, and compassionate reframing. Acknowledge RSD if relevant. Be warm, gentle, non-toxic-positive. No "just think positive" advice.',
+      suggestions:['I\'m completely overwhelmed right now','I think I\'m experiencing RSD','I feel like everything is falling apart'],
+      welcome:'I\'m here. Take a breath. Whatever you\'re feeling right now is valid. Tell me what\'s going on and we\'ll work through it together. 🌊'
+    },
+    {
+      id:'money', icon:'💰', color:'var(--green)', bg:'#EEF8F3',
+      name:'Money Coach', desc:'ADHD-friendly budgeting and financial planning',
+      system:'You are an ADHD money coach. ADHD brains struggle with financial planning due to impulsivity, time blindness, and executive dysfunction. Give practical, compassionate financial advice specifically adapted for ADHD. Use simple systems, automation suggestions, and avoid shame-based language.',
+      suggestions:['I impulsively spent money again and feel terrible','Help me create a simple ADHD budget','I can\'t stop forgetting to pay bills'],
+      welcome:'Money and ADHD is genuinely hard — not a character flaw. Tell me what\'s going on with your finances and let\'s build a system that actually works for your brain. 💰'
+    },
+    {
+      id:'goals', icon:'🎯', color:'var(--pink)', bg:'#FDEEF3',
+      name:'Goal Coach', desc:'90-day goals and accountability for ADHD brains',
+      system:'You are an ADHD goal-setting coach. Traditional goal systems fail ADHD brains. Help the user set achievable 90-day goals (not yearly), break them into weekly actions, and build dopamine-friendly accountability. Be realistic about ADHD challenges with long-term goals.',
+      suggestions:['I want to start a business but don\'t know where to begin','Help me set realistic goals for the next 90 days','I keep starting things and never finishing them'],
+      welcome:'Let\'s set goals that actually work for your ADHD brain — not the traditional ones that always lead to guilt. What do you want to achieve in the next 90 days? 🎯'
+    },
+    {
+      id:'expert', icon:'💬', color:'var(--dk)', bg:'#E8EDF2',
+      name:'ADHD Expert', desc:'Any question about ADHD, life, relationships, work',
+      system:'You are a world-class ADHD expert coach with deep knowledge of ADHD neuroscience, executive function, dopamine systems, RSD, time blindness, hyperfocus, and emotional dysregulation. Provide evidence-based, personalized, practical advice. Be warm, direct, and never condescending. Avoid generic self-help advice.',
+      suggestions:['Why do I procrastinate even on things I want to do?','How do I explain my ADHD to my boss?','What\'s the difference between ADHD and just being lazy?'],
+      welcome:'Ask me anything about ADHD — how your brain works, relationships, work, medication, coping strategies. I\'m here with real, evidence-based answers. 💬'
+    },
+  ],
+  fr: [
+    {
+      id:'task', icon:'🔨', color:'var(--green)', bg:'#EEF8F3',
+      name:'Décomposeur de tâches', desc:'Transforme les tâches écrasantes en micro-étapes de 15 min',
+      system:'Tu es un coach TDAH expert en décomposition de tâches. L\'utilisateur a un TDAH et se sent submergé. Décompose sa tâche en étapes très spécifiques et petites de 15 minutes maximum. Utilise des listes numérotées, sois chaleureux et encourageant. Reconnais à quel point commencer peut être difficile. Ne donne jamais de conseils génériques. Réponds en français.',
+      suggestions:['Je dois commencer mon rapport mais je suis paralysé','Aide-moi à décomposer le nettoyage de mon appart','J\'ai un gros projet à rendre vendredi'],
+      welcome:'Salut ! Je suis ton Décomposeur de tâches. Dis-moi quelle tâche te fait geler — je vais la découper en petites étapes que tu peux vraiment commencer. 🔨'
+    },
+    {
+      id:'planner', icon:'📅', color:'var(--orange)', bg:'#FEF5EE',
+      name:'Planificateur du jour', desc:'Crée un planning doux et réaliste pour ta journée',
+      system:'Tu es un coach planificateur spécialisé TDAH. Crée des plans journaliers doux et réalistes. Priorise sans pitié (max 3 vraies tâches). Ajoute du temps tampon entre les tâches. Suggère des blocs de temps. Inclus des pauses obligatoires. Sois chaleureux et sans jugement. Reconnais que les plans peuvent changer. Réponds en français.',
+      suggestions:['Planifie ma journée — j\'ai 5 choses à faire','Aide-moi à prioriser mes tâches d\'aujourd\'hui','Je suis submergé par ce que j\'ai à faire'],
+      welcome:'Bonjour ! Dis-moi tout ce que tu dois faire aujourd\'hui — vide ton cerveau — et je vais créer un plan doux et réaliste pour ton cerveau TDAH. 📅'
+    },
+    {
+      id:'dump', icon:'🧹', color:'var(--purple)', bg:'#F3F1FA',
+      name:'Coach Brain Dump', desc:'T\'aide à vider ton esprit et trouver la clarté',
+      system:'Tu es un coach brain dump pour TDAH. L\'utilisateur a besoin de vider son esprit. D\'abord, laisse-le tout déverser. Ensuite aide-le à trier : ce qui nécessite une action MAINTENANT, ce qui peut attendre, ce qu\'il faut lâcher. Sois compatissant et concret. Termine par une première étape claire. Réponds en français.',
+      suggestions:['Mon cerveau tourne — par où commencer ?','J\'ai trop de pensées et je n\'arrive pas à me concentrer','Tout semble urgent et je suis paralysé'],
+      welcome:'Prêt à vider ton cerveau ? Commence à écrire — tout ce qui tourne dans ta tête. Sans filtre, sans jugement. Laisse tout sortir. 🧹'
+    },
+    {
+      id:'focus', icon:'⏳', color:'var(--pink)', bg:'#FDEEF3',
+      name:'Coach Focus', desc:'Sessions Pomodoro adaptées TDAH avec vrai soutien',
+      system:'Tu es un coach de concentration pour TDAH. Aide l\'utilisateur avec des sessions de focus. Donne-lui un micro-objectif spécifique, des stratégies anti-distraction spécifiques au TDAH, que faire quand il se distrait (et ça arrivera), et une récompense à anticiper. Sois énergique, chaleureux et réaliste. Réponds en français.',
+      suggestions:['Aide-moi à me concentrer pendant 25 minutes','Je n\'arrête pas de me distraire — que faire ?','Commence une session focus avec moi'],
+      welcome:'On fait une session focus ensemble ! Sur quoi veux-tu travailler ? Je vais te donner un micro-objectif, des stratégies pour rester sur piste, et on fêtera ça après. ⏳'
+    },
+    {
+      id:'emotion', icon:'🌊', color:'var(--blue)', bg:'#EBF3F9',
+      name:'Coach Émotions', desc:'Régulation émotionnelle rapide pour la surcharge et la DSR',
+      system:'Tu es un spécialiste en régulation émotionnelle pour TDAH. L\'utilisateur est dérégulé, submergé ou vit de la DSR (Dysphorie de Sensibilité au Rejet). Fournis un soutien calmant immédiat : exercice de respiration, technique d\'ancrage, recadrage compatissant. Reconnais la DSR si pertinent. Sois doux, sans positivité toxique. Réponds en français.',
+      suggestions:['Je suis complètement submergé en ce moment','Je pense vivre de la DSR','J\'ai l\'impression que tout s\'effondre'],
+      welcome:'Je suis là. Respire. Tout ce que tu ressens en ce moment est valide. Dis-moi ce qui se passe et on va traverser ça ensemble. 🌊'
+    },
+    {
+      id:'money', icon:'💰', color:'var(--green)', bg:'#EEF8F3',
+      name:'Coach Budget', desc:'Gestion financière adaptée au cerveau TDAH',
+      system:'Tu es un coach financier pour TDAH. Les cerveaux TDAH ont du mal avec la planification financière à cause de l\'impulsivité, la cécité temporelle et les dysfonctions exécutives. Donne des conseils financiers pratiques et compatissants spécifiquement adaptés au TDAH. Utilise des systèmes simples, suggère l\'automatisation, évite le langage culpabilisant. Réponds en français.',
+      suggestions:['J\'ai encore dépensé impulsivement et je me sens terrible','Aide-moi à créer un budget TDAH simple','J\'arrête pas d\'oublier de payer mes factures'],
+      welcome:'L\'argent et le TDAH, c\'est vraiment difficile — pas un défaut de caractère. Dis-moi ce qui se passe avec tes finances et construisons un système qui marche pour ton cerveau. 💰'
+    },
+    {
+      id:'goals', icon:'🎯', color:'var(--pink)', bg:'#FDEEF3',
+      name:'Coach Objectifs', desc:'Objectifs 90 jours et responsabilité pour cerveaux TDAH',
+      system:'Tu es un coach de définition d\'objectifs pour TDAH. Les systèmes traditionnels échouent avec le TDAH. Aide l\'utilisateur à définir des objectifs réalisables sur 90 jours (pas annuels), les découper en actions hebdomadaires, et construire une responsabilité stimulante pour la dopamine. Réponds en français.',
+      suggestions:['Je veux créer une entreprise mais je ne sais pas par où commencer','Aide-moi à définir des objectifs réalistes pour les 90 prochains jours','Je commence tout et ne finis jamais rien'],
+      welcome:'Définissons des objectifs qui marchent vraiment pour ton cerveau TDAH — pas les traditionnels qui mènent toujours à la culpabilité. Que veux-tu accomplir dans les 90 prochains jours ? 🎯'
+    },
+    {
+      id:'expert', icon:'💬', color:'var(--dk)', bg:'#E8EDF2',
+      name:'Expert TDAH', desc:'Toute question sur le TDAH, la vie, les relations, le travail',
+      system:'Tu es un expert coach TDAH de classe mondiale avec une connaissance approfondie des neurosciences du TDAH, fonctions exécutives, systèmes dopaminergiques, DSR, cécité temporelle, hyperfocus et dérégulation émotionnelle. Fournis des conseils fondés sur des preuves, personnalisés et pratiques. Sois chaleureux, direct et jamais condescendant. Réponds en français.',
+      suggestions:['Pourquoi je procrastine même sur des choses que je veux faire ?','Comment expliquer mon TDAH à mon patron ?','Quelle est la différence entre TDAH et paresse ?'],
+      welcome:'Pose-moi n\'importe quelle question sur le TDAH — comment fonctionne ton cerveau, relations, travail, médication, stratégies. Je suis là avec de vraies réponses basées sur la science. 💬'
+    },
+  ]
+};
+
+// ─────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────
+var currentAgent = null;
+var histories = JSON.parse(localStorage.getItem('adhd_histories') || '{}');
+var totalMsgs = parseInt(localStorage.getItem('adhd_total_msgs') || '0');
+var totalSessions = parseInt(localStorage.getItem('adhd_total_sessions') || '0');
+var isLoading = false;
+
+function saveHistories() { localStorage.setItem('adhd_histories', JSON.stringify(histories)); }
+
+// ─────────────────────────────────────────
+// LOGIN
+// ─────────────────────────────────────────
+function setLoginLang(l) {
+  lang = l;
+  localStorage.setItem('adhd_lang', lang);
+  document.getElementById('login-en').classList.toggle('active', l==='en');
+  document.getElementById('login-fr').classList.toggle('active', l==='fr');
+  document.getElementById('login-sub').textContent = t('loginSub');
+  document.getElementById('login-btn').textContent = t('loginBtn');
+  document.getElementById('login-help').innerHTML = t('loginHelp').replace('\n','<br>');
+  document.getElementById('login-error').textContent = t('loginError');
+  document.getElementById('chat-input').placeholder = lang==='en' ? 'Type your message...' : 'Tape ton message...';
+}
+
+document.getElementById('login-en').addEventListener('click', function(){ setLoginLang('en'); });
+document.getElementById('login-fr').addEventListener('click', function(){ setLoginLang('fr'); });
+
+function formatLicense(val) {
+  var clean = val.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+  var parts = [];
+  if(clean.length > 0) parts.push(clean.substring(0,4));
+  if(clean.length > 4) parts.push(clean.substring(4,8));
+  if(clean.length > 8) parts.push(clean.substring(8,12));
+  return parts.join('-');
+}
+
+document.getElementById('license-input').addEventListener('input', function() {
+  this.value = formatLicense(this.value);
+  this.classList.remove('error');
+  document.getElementById('login-error').style.display = 'none';
+});
+
+document.getElementById('license-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') attemptLogin();
+});
+
+document.getElementById('login-btn').addEventListener('click', attemptLogin);
+
+function attemptLogin() {
+  var key = document.getElementById('license-input').value.trim().toUpperCase();
+  if (VALID_LICENSES.includes(key)) {
+    localStorage.setItem('adhd_license', key);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initApp();
+  } else {
+    var input = document.getElementById('license-input');
+    var error = document.getElementById('login-error');
+    input.classList.add('error');
+    error.style.display = 'block';
+    setTimeout(function(){ input.classList.remove('error'); }, 500);
+  }
+}
+
+// Check if already logged in
+var savedLicense = localStorage.getItem('adhd_license');
+if (savedLicense && VALID_LICENSES.includes(savedLicense)) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  initApp();
+} else {
+  setLoginLang(lang);
+}
+
+// ─────────────────────────────────────────
+// APP INIT
+// ─────────────────────────────────────────
+function initApp() {
+  renderAgents();
+  updateStats();
+  updateAppLang();
+}
+
+function updateAppLang() {
+  document.getElementById('nav-lang-toggle').textContent = lang==='en' ? '🇫🇷 FR' : '🇬🇧 EN';
+  document.getElementById('hero-title').textContent = t('heroTitle');
+  document.getElementById('hero-sub').textContent = t('heroSub');
+  document.getElementById('stat-sessions-l').textContent = t('sessions');
+  document.getElementById('stat-msgs-l').textContent = t('msgs');
+  document.getElementById('stat-agents-l').textContent = t('agents');
+  document.getElementById('stat-access-l').textContent = t('access');
+  document.getElementById('chat-input').placeholder = lang==='en' ? 'Type your message...' : 'Tape ton message...';
+}
+
+document.getElementById('nav-lang-toggle').addEventListener('click', function() {
+  lang = lang==='en' ? 'fr' : 'en';
+  localStorage.setItem('adhd_lang', lang);
+  renderAgents();
+  updateAppLang();
+  if (currentAgent) {
+    var agents = AGENTS[lang];
+    var agent = agents.find(function(a){ return a.id===currentAgent.id; });
+    if (agent) {
+      currentAgent = agent;
+      document.getElementById('chat-name').textContent = agent.name;
+      document.getElementById('chat-sub').textContent = agent.desc;
+      renderSuggestions(agent.suggestions);
+    }
+  }
+});
+
+document.getElementById('nav-logout').addEventListener('click', function() {
+  localStorage.removeItem('adhd_license');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('license-input').value = '';
+  setLoginLang(lang);
+});
+
+// ─────────────────────────────────────────
+// AGENTS
+// ─────────────────────────────────────────
+function renderAgents() {
+  var agents = AGENTS[lang];
+  var grid = document.getElementById('agents-grid');
+  grid.innerHTML = agents.map(function(a) {
+    var hist = histories[a.id] || [];
+    var msgCount = hist.filter(function(m){ return m.role==='user'; }).length;
+    return '<div class="agent-card" data-agent="'+a.id+'" style="--card-color:'+a.color+';">' +
+      '<div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:'+a.color+';border-radius:4px 0 0 4px;"></div>' +
+      '<div class="agent-icon" style="background:'+a.bg+';">'+a.icon+'</div>' +
+      '<div class="agent-body">' +
+        '<div class="agent-name">'+a.name+'</div>' +
+        '<div class="agent-desc">'+a.desc+'</div>' +
+        (msgCount > 0 ? '<div class="agent-sessions" style="color:'+a.color+';">'+msgCount+' message'+(msgCount>1?'s':'')+' saved</div>' : '') +
+      '</div>' +
+      '<div class="agent-arrow">→</div>' +
+    '</div>';
+  }).join('');
+
+  document.getElementById('agents-grid').addEventListener('click', function(e) {
+    var card = e.target.closest('.agent-card');
+    if (!card) return;
+    var id = card.getAttribute('data-agent');
+    var agent = AGENTS[lang].find(function(a){ return a.id===id; });
+    if (agent) openChat(agent);
+  });
+}
+
+function updateStats() {
+  document.getElementById('stat-sessions').textContent = totalSessions;
+  document.getElementById('stat-msgs').textContent = totalMsgs;
+}
+
+// ─────────────────────────────────────────
+// CHAT
+// ─────────────────────────────────────────
+function openChat(agent) {
+  currentAgent = agent;
+  document.getElementById('home-screen').style.display = 'none';
+  document.getElementById('chat-screen').style.display = 'block';
+  document.getElementById('chat-icon').textContent = agent.icon;
+  document.getElementById('chat-icon').style.background = agent.bg;
+  document.getElementById('chat-name').textContent = agent.name;
+  document.getElementById('chat-sub').textContent = agent.desc;
+  renderSuggestions(agent.suggestions);
+  renderMessages(agent);
+  totalSessions++;
+  localStorage.setItem('adhd_total_sessions', totalSessions);
+  updateStats();
+  document.documentElement.scrollTop = 0;
+
+  // Welcome message if no history
+  if (!histories[agent.id] || histories[agent.id].length === 0) {
+    histories[agent.id] = [];
+    addMessage('assistant', agent.welcome, false);
+  }
+}
+
+function renderMessages(agent) {
+  var msgs = document.getElementById('messages');
+  var hist = histories[agent.id] || [];
+  if (!hist.length) { msgs.innerHTML = ''; return; }
+  msgs.innerHTML = hist.map(function(m) {
+    return renderMsg(m.role, m.content);
+  }).join('');
+  scrollToBottom();
+}
+
+function renderMsg(role, content) {
+  var isUser = role === 'user';
+  var avatar = isUser ? '🧑' : currentAgent.icon;
+  var formatted = content
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>')
+    .replace(/^(\d+)\.\s/gm, '<br>$1. ');
+  return '<div class="msg '+role+'">' +
+    '<div class="msg-avatar" style="background:'+(isUser?'var(--dk)':currentAgent.bg)+';">'+avatar+'</div>' +
+    '<div class="msg-bubble">'+formatted+'</div>' +
+  '</div>';
+}
+
+function addMessage(role, content, save) {
+  if (save !== false) {
+    if (!histories[currentAgent.id]) histories[currentAgent.id] = [];
+    histories[currentAgent.id].push({role:role, content:content});
+    saveHistories();
+    if (role === 'user') {
+      totalMsgs++;
+      localStorage.setItem('adhd_total_msgs', totalMsgs);
+      updateStats();
+    }
+  }
+  var msgs = document.getElementById('messages');
+  var div = document.createElement('div');
+  div.innerHTML = renderMsg(role, content);
+  msgs.appendChild(div.firstChild);
+  scrollToBottom();
+}
+
+function scrollToBottom() {
+  setTimeout(function() {
+    var msgs = document.getElementById('messages');
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 50);
+}
+
+function renderSuggestions(sugs) {
+  var el = document.getElementById('suggestions');
+  el.innerHTML = sugs.map(function(s) {
+    return '<button class="sug-btn" data-sug="'+s.replace(/"/g,'&quot;')+'">'+s+'</button>';
+  }).join('');
+}
+
+document.getElementById('suggestions').addEventListener('click', function(e) {
+  var btn = e.target.closest('.sug-btn');
+  if (!btn) return;
+  document.getElementById('chat-input').value = btn.getAttribute('data-sug');
+  sendMessage();
+});
+
+// Send message
+document.getElementById('send-btn').addEventListener('click', sendMessage);
+document.getElementById('chat-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// Auto resize textarea
+document.getElementById('chat-input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+async function sendMessage() {
+  var input = document.getElementById('chat-input');
+  var text = input.value.trim();
+  if (!text || isLoading) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('suggestions').style.display = 'none';
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+
+  addMessage('user', text, true);
+
+  // Loading indicator
+  var msgs = document.getElementById('messages');
+  var loadingDiv = document.createElement('div');
+  loadingDiv.className = 'msg ai';
+  loadingDiv.id = 'loading-msg';
+  loadingDiv.innerHTML = '<div class="msg-avatar" style="background:'+currentAgent.bg+';">'+currentAgent.icon+'</div>' +
+    '<div class="msg-bubble"><div class="loading-dots"><span></span><span></span><span></span></div></div>';
+  msgs.appendChild(loadingDiv);
+  scrollToBottom();
+
+  try {
+    var history = (histories[currentAgent.id] || []).slice(-10).map(function(m) {
+      return {role: m.role, content: m.content};
+    });
+
+    var response = await fetch('/.netlify/functions/claude', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: currentAgent.system,
+        messages: history
+      })
+    });
+
+    var data = await response.json();
+    var reply = data.content && data.content[0] ? data.content[0].text : (lang==='en' ? 'Sorry, I couldn\'t respond. Please try again.' : 'Désolé, je n\'ai pas pu répondre. Réessaie.');
+
+    document.getElementById('loading-msg').remove();
+    addMessage('assistant', reply, true);
+
+  } catch(err) {
+    document.getElementById('loading-msg').remove();
+    var errMsg = lang==='en' ? '⚠️ Connection error. Check your internet and try again.' : '⚠️ Erreur de connexion. Vérifie ta connexion internet.';
+    addMessage('assistant', errMsg, false);
+  }
+
+  isLoading = false;
+  document.getElementById('send-btn').disabled = false;
+  document.getElementById('suggestions').style.display = 'flex';
+}
+
+// Back button
+document.getElementById('chat-back').addEventListener('click', function() {
+  document.getElementById('chat-screen').style.display = 'none';
+  document.getElementById('home-screen').style.display = 'block';
+  currentAgent = null;
+  renderAgents();
+  document.documentElement.scrollTop = 0;
+});
+
+// Clear conversation
+document.getElementById('chat-clear-btn').addEventListener('click', function() {
+  if (confirm(t('clearConfirm'))) {
+    histories[currentAgent.id] = [];
+    saveHistories();
+    document.getElementById('messages').innerHTML = '';
+    addMessage('assistant', currentAgent.welcome, false);
+    toast(t('cleared'));
+    renderAgents();
+  }
+});
+
+// ─────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
+</script>
+</body>
+</html>
